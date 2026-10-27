@@ -1,0 +1,123 @@
+Q3 — MongoDB Methods
+
+Connection
+
+const { MongoClient, ObjectId } = require("mongodb");
+
+const client = new MongoClient("mongodb://127.0.0.1:27017");
+
+await client.connect();
+
+const db = client.db("studentDB");
+
+const col = db.collection("students");
+
+await client.close();
+
+Insert / Create
+
+await col.insertOne({name:"Sai", roll:"129", branch:"CSE"});
+
+await col.insertMany([{name:"A"},{name:"B"}]);
+
+Read / Find
+
+await col.find().toArray();
+
+await col.findOne({roll:"129"});
+
+await col.find({branch:"CSE"}).toArray();
+
+await col.countDocuments({branch:"CSE"});
+
+await col.distinct('branch');
+
+Update
+
+await col.updateOne({roll:"129"},{$set:{name:"Sathwik"}});
+
+await col.updateMany({branch:"CSE"},{$set:{year:2}});
+
+await col.replaceOne({roll:"129"},{name:"Sathwik",roll:"129",branch:"CSE"});
+
+Delete
+
+await col.deleteOne({roll:"129"});
+
+await col.deleteMany({branch:"CSE"});
+
+Sort / Limit / Skip
+
+await col.find().sort({roll:1}).toArray();
+
+await col.find().sort({roll:-1}).toArray();
+
+await col.find().limit(5).toArray();
+
+await col.find().skip(5).toArray();
+
+Query Operators
+
+await col.find({age:{$gt:18}}).toArray();
+
+await col.find({age:{$gte:18}}).toArray();
+
+await col.find({age:{$lt:25}}).toArray();
+
+await col.find({age:{$lte:25}}).toArray();
+
+await col.find({branch:{$in:["CSE","ECE"]}}).toArray();
+
+await col.find({branch:{$nin:["CSE"]}}).toArray();
+
+await col.find({$or:[{branch:"CSE"},{branch:"ECE"}]}).toArray();
+
+await col.find({$and:[{branch:"CSE"},{year:2}]}).toArray();
+
+await col.find({name:{$regex:"Sai"}}).toArray();
+
+Field Operations
+
+await col.updateOne({roll:"129"},{$set:{age:20}});
+
+await col.updateOne({roll:"129"},{$unset:{age:""}});
+
+await col.updateOne({roll:"129"},{$inc:{age:1}});
+
+await col.updateOne({roll:"129"},{$rename:{name:"studentName"}});
+
+Index
+
+await col.createIndex({roll:1});
+
+await col.createIndex({email:1},{unique:true});
+
+await col.getIndexes();
+
+await col.dropIndex("roll_1");
+
+ObjectId
+
+ObjectId.isValid(id);
+
+new ObjectId(id);
+
+await col.findOne({_id:new ObjectId(id)});
+
+Aggregation
+
+await col.aggregate([{$match:{branch:"CSE"}}]).toArray();
+
+await col.aggregate([{$group:{_id:"$branch",count:{$sum:1}}}]).toArray();
+
+await col.aggregate([{$sort:{name:1}}]).toArray();
+
+Collection / Database
+
+await db.listCollections().toArray();
+
+await db.createCollection("students");
+
+await db.dropCollection("students");
+
+await db.listCollections().toArray();

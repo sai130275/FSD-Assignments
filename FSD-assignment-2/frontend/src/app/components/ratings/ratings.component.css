@@ -1,0 +1,88 @@
+.ratings-page { min-height: 80vh; }
+.page-header { background: #1a1a2e; color: white; padding: 2rem; text-align: center; }
+.page-header h2 { font-size: 2rem; color: #f5a623; margin-bottom: 0.3rem; }
+.page-header p { color: #aaa; }
+.loading, .error-msg { text-align: center; padding: 1rem; color: #e74c3c; }
+
+.ratings-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+@media (max-width: 800px) { .ratings-layout { grid-template-columns: 1fr; } }
+
+.summary-card {
+  text-align: center; background: #1a1a2e; color: white;
+  padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;
+}
+.avg-number { font-size: 3.5rem; font-weight: 700; color: #f5a623; line-height: 1; }
+.stars-display { font-size: 1.8rem; margin: 0.3rem 0; }
+.stars-display .filled { color: #f5a623; }
+.stars-display .half { color: #f5a62380; }
+.count { color: #aaa; font-size: 0.9rem; }
+
+.reviews-list { display: flex; flex-direction: column; gap: 1rem; }
+.review-card {
+  background: white; border-radius: 10px;
+  padding: 1rem 1.2rem; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.review-header { display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 0.5rem; }
+.reviewer-avatar {
+  background: #f5a623; color: #1a1a2e;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1rem; flex-shrink: 0;
+}
+.reviewer-name { font-weight: 600; color: #1a1a2e; }
+.review-meta { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.2rem; }
+.cat-tag {
+  background: #e8f4fd; color: #3498db;
+  font-size: 0.72rem; padding: 1px 8px; border-radius: 10px;
+}
+.review-date { color: #888; font-size: 0.78rem; }
+.star-rating { display: flex; font-size: 1rem; margin-left: auto; }
+.star-rating .filled { color: #f5a623; }
+.star-rating span:not(.filled) { color: #ddd; }
+.review-text { color: #555; font-size: 0.9rem; line-height: 1.5; margin: 0.3rem 0 0; }
+.no-reviews { text-align: center; color: #888; padding: 2rem; }
+.ml-auto { margin-left: auto; }
+
+.form-card {
+  background: white; border-radius: 12px;
+  padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  position: sticky; top: 75px;
+}
+.form-card h3 { color: #1a1a2e; margin-bottom: 1rem; border-bottom: 2px solid #f5a623; padding-bottom: 0.5rem; }
+.success-msg { background: #d4edda; color: #155724; padding: 0.7rem; border-radius: 8px; margin-bottom: 1rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-weight: 600; color: #444; margin-bottom: 0.3rem; font-size: 0.9rem; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%; padding: 0.6rem 0.8rem;
+  border: 1px solid #ddd; border-radius: 8px;
+  font-size: 0.9rem; box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: #f5a623; outline: none; }
+.field-error { color: #e74c3c; font-size: 0.78rem; display: block; margin-top: 0.2rem; }
+
+.star-picker { display: flex; gap: 0.2rem; cursor: pointer; }
+.star-pick { font-size: 2rem; color: #ddd; transition: color 0.1s; user-select: none; }
+.star-pick.selected { color: #f5a623; }
+.star-label { font-size: 0.85rem; color: #888; display: block; margin-top: 0.2rem; min-height: 1.2rem; }
+
+.submit-btn {
+  width: 100%; padding: 0.8rem;
+  background: #f5a623; color: #1a1a2e;
+  border: none; border-radius: 8px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: background 0.2s;
+}
+.submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+.submit-btn:not(:disabled):hover { background: #e6951e; }

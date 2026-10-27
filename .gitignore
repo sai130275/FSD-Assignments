@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Angular build output
+dist/
+.angular/cache/
+
+# MongoDB local data
+data/
+
+# IDE
+.vscode/
+.idea/
+
+# Uploaded files (local only)
+FSD-assignment-1/Question-2/uploads/

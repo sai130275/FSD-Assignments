@@ -1,0 +1,16 @@
+<nav class="navbar">
+  <a routerLink="/" class="brand">🍽️ Bella Vista</a>
+  <ul class="nav-links">
+    <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a></li>
+    <li><a routerLink="/menu" routerLinkActive="active">Menu</a></li>
+    <li><a routerLink="/booking" routerLinkActive="active">Book Table</a></li>
+    <li><a routerLink="/ratings" routerLinkActive="active">Ratings</a></li>
+    <li><a routerLink="/feedback" routerLinkActive="active">Feedback</a></li>
+    <li>
+      <a routerLink="/cart" routerLinkActive="active" class="cart-link">
+        🛒 Cart
+        <span class="badge" *ngIf="cartService.totalItems > 0">{{ cartService.totalItems }}</span>
+      </a>
+    </li>
+  </ul>
+</nav>

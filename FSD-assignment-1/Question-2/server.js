@@ -1,0 +1,515 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+const app = express();
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Make uploaded photos visible in browser
+app.use("/uploads", express.static("uploads"));
+
+// Create uploads folder if it doesn't exist
+if (!fs.existsSync("uploads")) {
+    fs.mkdirSync("uploads");
+}
+
+
+// ================= MONGODB =================
+
+mongoose.connect("mongodb://127.0.0.1:27017/studentDB")
+    .then(() => console.log("MongoDB Connected"))
+    .catch(err => console.log(err));
+
+
+// ================= PHOTO UPLOAD =================
+
+const storage = multer.diskStorage({
+
+    destination: function (req, file, cb) {
+        cb(null, "uploads/");
+    },
+
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+
+});
+
+const upload = multer({ storage: storage });
+
+
+// ================= STUDENT SCHEMA =================
+
+const studentSchema = new mongoose.Schema({
+
+    name: String,
+    roll: String,
+    branch: String,
+    gender: String,
+    mobile: String,
+    email: String,
+    photo: String
+
+});
+
+const Student = mongoose.model("Student", studentSchema);
+
+
+// ================= HOME PAGE =================
+
+app.get("/", async (req, res) => {
+
+    const students = await Student.find();
+
+    let rows = "";
+
+    students.forEach(student => {
+
+        rows += `
+            <tr>
+
+                <td>
+                    ${
+                        student.photo
+                        ? `<img src="/uploads/${student.photo}"
+                                width="80"
+                                height="80"
+                                style="object-fit:cover;
+                                       border-radius:50%;">`
+                        : "No Photo"
+                    }
+                </td>
+
+                <td>${student.name}</td>
+                <td>${student.roll}</td>
+                <td>${student.branch}</td>
+                <td>${student.gender}</td>
+                <td>${student.mobile}</td>
+                <td>${student.email}</td>
+
+                <td>
+
+                    <a href="/edit/${student._id}">
+                        <button>Update</button>
+                    </a>
+
+                    <form action="/delete/${student._id}"
+                          method="POST"
+                          style="display:inline;">
+
+                        <button type="submit"
+                                onclick="return confirm('Delete this student?')">
+                            Delete
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+        `;
+    });
+
+
+    res.send(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>Student CRUD</title>
+
+            <style>
+
+                body {
+                    font-family: Arial;
+                    margin: 40px;
+                }
+
+                h1 {
+                    text-align: center;
+                }
+
+                .add {
+                    display: block;
+                    width: 150px;
+                    padding: 10px;
+                    margin: 20px auto;
+                    text-align: center;
+                    background: green;
+                    color: white;
+                    text-decoration: none;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th, td {
+                    border: 1px solid black;
+                    padding: 10px;
+                    text-align: center;
+                }
+
+                th {
+                    background-color: lightgray;
+                }
+
+                button {
+                    padding: 6px 10px;
+                    cursor: pointer;
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <h1>Student Management System</h1>
+
+            <a class="add" href="/add">
+                + Add Student
+            </a>
+
+            <table>
+
+                <tr>
+
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Roll</th>
+                    <th>Branch</th>
+                    <th>Gender</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+
+                </tr>
+
+                ${rows}
+
+            </table>
+
+        </body>
+
+        </html>
+
+    `);
+
+});
+
+
+// ================= ADD STUDENT FORM =================
+
+app.get("/add", (req, res) => {
+
+    res.send(`
+
+        <h1>Add Student</h1>
+
+        <form action="/create"
+              method="POST"
+              enctype="multipart/form-data">
+
+            Name:
+            <input type="text"
+                   name="name"
+                   required>
+
+            <br><br>
+
+
+            Roll Number:
+            <input type="text"
+                   name="roll"
+                   required>
+
+            <br><br>
+
+
+            Branch:
+            <input type="text"
+                   name="branch"
+                   required>
+
+            <br><br>
+
+
+            Gender:
+            <input type="text"
+                   name="gender"
+                   required>
+
+            <br><br>
+
+
+            Mobile:
+            <input type="text"
+                   name="mobile"
+                   required>
+
+            <br><br>
+
+
+            Email:
+            <input type="email"
+                   name="email"
+                   required>
+
+            <br><br>
+
+
+            Photo:
+            <input type="file"
+                   name="photo"
+                   accept="image/*"
+                   required>
+
+            <br><br>
+
+
+            <button type="submit">
+                Create Student
+            </button>
+
+        </form>
+
+        <br>
+
+        <a href="/">
+            Back to Student List
+        </a>
+
+    `);
+
+});
+
+
+// ================= CREATE STUDENT =================
+
+app.post("/create", upload.single("photo"), async (req, res) => {
+
+    try {
+
+        const student = new Student({
+
+            name: req.body.name,
+            roll: req.body.roll,
+            branch: req.body.branch,
+            gender: req.body.gender,
+            mobile: req.body.mobile,
+            email: req.body.email,
+
+            photo: req.file
+                ? req.file.filename
+                : ""
+
+        });
+
+        await student.save();
+
+        res.redirect("/");
+
+    } catch (error) {
+
+        res.status(500).send(error);
+
+    }
+
+});
+
+
+// ================= UPDATE FORM =================
+
+app.get("/edit/:id", async (req, res) => {
+
+    const student = await Student.findById(req.params.id);
+
+    res.send(`
+
+        <h1>Update Student</h1>
+
+        <form action="/update/${student._id}"
+              method="POST"
+              enctype="multipart/form-data">
+
+
+            ${
+                student.photo
+                ? `<img src="/uploads/${student.photo}"
+                        width="120"
+                        height="120"
+                        style="object-fit:cover;
+                               border-radius:50%;">
+                   <br><br>`
+                : ""
+            }
+
+
+            Name:
+
+            <input type="text"
+                   name="name"
+                   value="${student.name}"
+                   required>
+
+            <br><br>
+
+
+            Roll Number:
+
+            <input type="text"
+                   name="roll"
+                   value="${student.roll}"
+                   required>
+
+            <br><br>
+
+
+            Branch:
+
+            <input type="text"
+                   name="branch"
+                   value="${student.branch}"
+                   required>
+
+            <br><br>
+
+
+            Gender:
+
+            <input type="text"
+                   name="gender"
+                   value="${student.gender}"
+                   required>
+
+            <br><br>
+
+
+            Mobile:
+
+            <input type="text"
+                   name="mobile"
+                   value="${student.mobile}"
+                   required>
+
+            <br><br>
+
+
+            Email:
+
+            <input type="email"
+                   name="email"
+                   value="${student.email}"
+                   required>
+
+            <br><br>
+
+
+            Change Photo:
+
+            <input type="file"
+                   name="photo"
+                   accept="image/*">
+
+            <br><br>
+
+
+            <button type="submit">
+                Update Student
+            </button>
+
+        </form>
+
+        <br>
+
+        <a href="/">
+            Back to Student List
+        </a>
+
+    `);
+
+});
+
+
+// ================= UPDATE STUDENT =================
+
+app.post("/update/:id", upload.single("photo"), async (req, res) => {
+
+    try {
+
+        const updateData = {
+
+            name: req.body.name,
+            roll: req.body.roll,
+            branch: req.body.branch,
+            gender: req.body.gender,
+            mobile: req.body.mobile,
+            email: req.body.email
+
+        };
+
+
+        // Update photo only if a new photo is selected
+
+        if (req.file) {
+            updateData.photo = req.file.filename;
+        }
+
+
+        await Student.findByIdAndUpdate(
+            req.params.id,
+            updateData
+        );
+
+
+        res.redirect("/");
+
+    } catch (error) {
+
+        res.status(500).send(error);
+
+    }
+
+});
+
+
+// ================= DELETE STUDENT =================
+
+app.post("/delete/:id", async (req, res) => {
+
+    try {
+
+        await Student.findByIdAndDelete(
+            req.params.id
+        );
+
+        res.redirect("/");
+
+    } catch (error) {
+
+        res.status(500).send(error);
+
+    }
+
+});
+
+
+// ================= START SERVER =================
+
+app.listen(3000, () => {
+
+    console.log(
+        "Server running on http://localhost:3000"
+    );
+
+});

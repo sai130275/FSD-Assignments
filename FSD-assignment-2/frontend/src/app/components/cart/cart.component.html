@@ -1,0 +1,91 @@
+<div class="cart-page">
+  <div class="page-header">
+    <h2>Your Order</h2>
+  </div>
+
+  <!-- Success state -->
+  <div class="success-panel" *ngIf="success && orderResult">
+    <div class="success-icon">✅</div>
+    <h3>Order Placed Successfully!</h3>
+    <div class="order-details">
+      <p><strong>Order Number:</strong> {{ orderResult.orderNumber }}</p>
+      <p><strong>Total:</strong> ₹{{ orderResult.totalAmount }}</p>
+      <p><strong>Status:</strong> {{ orderResult.status }}</p>
+    </div>
+    <button class="btn-primary" (click)="reset(); $any($event.target).closest('app-cart')">
+      <a routerLink="/menu" class="link-btn">Order More</a>
+    </button>
+  </div>
+
+  <!-- Empty cart -->
+  <div class="empty-cart" *ngIf="!success && cartService.items.length === 0">
+    <p>🛒 Your cart is empty.</p>
+    <a routerLink="/menu" class="btn-primary">Browse Menu</a>
+  </div>
+
+  <!-- Cart with items -->
+  <div class="cart-content" *ngIf="!success && cartService.items.length > 0">
+    <div class="cart-items">
+      <h3>Items ({{ cartService.totalItems }})</h3>
+      <div class="cart-item" *ngFor="let item of cartService.items">
+        <img [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name" />
+        <div class="item-info">
+          <p class="item-name">{{ item.menuItem.name }}</p>
+          <p class="item-price">₹{{ item.menuItem.price }} each</p>
+        </div>
+        <div class="qty-ctrl">
+          <button (click)="cartService.updateQuantity(item.menuItem._id, item.quantity - 1)">−</button>
+          <span>{{ item.quantity }}</span>
+          <button (click)="cartService.updateQuantity(item.menuItem._id, item.quantity + 1)">+</button>
+        </div>
+        <div class="subtotal">₹{{ item.menuItem.price * item.quantity }}</div>
+        <button class="remove-btn" (click)="cartService.removeItem(item.menuItem._id)" title="Remove">✕</button>
+      </div>
+      <div class="total-row">
+        <strong>Total: ₹{{ cartService.totalAmount }}</strong>
+      </div>
+    </div>
+
+    <!-- Checkout form -->
+    <div class="checkout-form">
+      <h3>Checkout Details</h3>
+      <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+      <form #orderForm="ngForm" (ngSubmit)="placeOrder(orderForm)">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" name="customerName" [(ngModel)]="customerName"
+            required maxlength="100" #nameCtrl="ngModel"
+            placeholder="Your name" />
+          <span class="field-error" *ngIf="nameCtrl.invalid && nameCtrl.touched">Name is required.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" name="customerPhone" [(ngModel)]="customerPhone"
+            required pattern="^\+?[\d\s\-()]{7,15}$" #phoneCtrl="ngModel"
+            placeholder="+91 9876543210" />
+          <span class="field-error" *ngIf="phoneCtrl.invalid && phoneCtrl.touched">Valid phone number is required.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Delivery Type</label>
+          <select name="deliveryType" [(ngModel)]="deliveryType">
+            <option value="dine-in">Dine-in</option>
+            <option value="takeaway">Takeaway</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Special Instructions</label>
+          <textarea name="specialInstructions" [(ngModel)]="specialInstructions"
+            maxlength="300" rows="3" placeholder="Allergies, preferences…"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="submitting || orderForm.invalid">
+          {{ submitting ? 'Placing Order…' : 'Place Order — ₹' + cartService.totalAmount }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

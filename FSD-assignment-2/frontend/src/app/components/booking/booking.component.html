@@ -1,0 +1,85 @@
+<div class="booking-page">
+  <div class="page-header">
+    <h2>Book a Table</h2>
+    <p>Reserve your spot — we check availability in real time</p>
+  </div>
+
+  <!-- Success panel -->
+  <div class="success-panel" *ngIf="success && bookingResult">
+    <div class="success-icon">🎉</div>
+    <h3>Table Booked Successfully!</h3>
+    <div class="booking-details">
+      <div class="detail-row"><span class="label">Reference ID</span><span class="value ref-id">{{ bookingResult.referenceId }}</span></div>
+      <div class="detail-row"><span class="label">Table Number</span><span class="value">Table {{ bookingResult.tableNumber }}</span></div>
+      <div class="detail-row"><span class="label">Date</span><span class="value">{{ formatDate(bookingResult.bookingDate) }}</span></div>
+      <div class="detail-row"><span class="label">Time</span><span class="value">{{ bookingResult.bookingTime }}</span></div>
+      <div class="detail-row"><span class="label">Guests</span><span class="value">{{ bookingResult.guestCount }}</span></div>
+      <div class="detail-row"><span class="label">Status</span><span class="value status-confirmed">{{ bookingResult.status }}</span></div>
+    </div>
+    <p class="save-hint">📸 Please note your Reference ID: <strong>{{ bookingResult.referenceId }}</strong></p>
+    <button class="btn-primary" (click)="newBooking()">Make Another Booking</button>
+  </div>
+
+  <!-- Booking form -->
+  <div class="form-container" *ngIf="!success">
+    <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+
+    <form #bookingForm="ngForm" (ngSubmit)="submitBooking(bookingForm)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" name="customerName" [(ngModel)]="customerName"
+            required maxlength="100" #nameCtrl="ngModel"
+            placeholder="Your name" />
+          <span class="field-error" *ngIf="nameCtrl.invalid && nameCtrl.touched">Name is required.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" name="customerPhone" [(ngModel)]="customerPhone"
+            required pattern="^\+?[\d\s\-()]{7,15}$" #phoneCtrl="ngModel"
+            placeholder="+91 9876543210" />
+          <span class="field-error" *ngIf="phoneCtrl.invalid && phoneCtrl.touched">Valid phone number is required.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" name="bookingDate" [(ngModel)]="bookingDate"
+            required [min]="minDate" #dateCtrl="ngModel" />
+          <span class="field-error" *ngIf="dateCtrl.invalid && dateCtrl.touched">Please select a valid date.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Time *</label>
+          <select name="bookingTime" [(ngModel)]="bookingTime" required #timeCtrl="ngModel">
+            <option value="">-- Select time --</option>
+            <option *ngFor="let slot of timeSlots" [value]="slot">{{ slot }}</option>
+          </select>
+          <span class="field-error" *ngIf="timeCtrl.invalid && timeCtrl.touched">Please select a time slot.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Number of Guests *</label>
+          <input type="number" name="guestCount" [(ngModel)]="guestCount"
+            required min="1" max="20" #guestCtrl="ngModel" />
+          <span class="field-error" *ngIf="guestCtrl.invalid && guestCtrl.touched">1–20 guests required.</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Special Requests</label>
+          <textarea name="specialRequests" [(ngModel)]="specialRequests"
+            maxlength="300" rows="3"
+            placeholder="Any dietary requirements, accessibility needs, or preferences…"></textarea>
+        </div>
+      </div>
+
+      <div class="info-box">
+        ℹ️ Bookings accepted between <strong>10:00 AM – 10:00 PM</strong>. Maximum <strong>10 tables</strong> per slot. Slots overlap within a 90-minute window.
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="submitting || bookingForm.invalid">
+        {{ submitting ? 'Checking availability…' : 'Confirm Booking' }}
+      </button>
+    </form>
+  </div>
+</div>

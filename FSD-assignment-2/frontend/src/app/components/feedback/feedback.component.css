@@ -1,0 +1,64 @@
+.feedback-page { min-height: 80vh; }
+.page-header { background: #1a1a2e; color: white; padding: 2rem; text-align: center; }
+.page-header h2 { font-size: 2rem; color: #f5a623; margin-bottom: 0.3rem; }
+.page-header p { color: #aaa; }
+
+.success-panel {
+  text-align: center; padding: 3rem 2rem;
+  max-width: 480px; margin: 2rem auto;
+  background: white; border-radius: 12px;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.1);
+}
+.success-panel .icon { font-size: 3rem; }
+.success-panel h3 { color: #27ae60; font-size: 1.5rem; margin: 0.5rem 0; }
+.success-panel p { color: #555; margin-bottom: 1.5rem; }
+
+.form-container {
+  max-width: 640px; margin: 2rem auto;
+  padding: 2rem; background: white;
+  border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.error-msg { background: #ffe0e0; color: #c0392b; padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1.2rem; }
+
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { display: block; font-weight: 600; color: #444; margin-bottom: 0.4rem; font-size: 0.9rem; }
+.char-count { font-weight: 400; color: #888; font-size: 0.8rem; }
+.form-group input,
+.form-group textarea {
+  width: 100%; padding: 0.65rem 0.9rem;
+  border: 1px solid #ddd; border-radius: 8px;
+  font-size: 0.95rem; box-sizing: border-box;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.form-group input:focus,
+.form-group textarea:focus { border-color: #f5a623; outline: none; }
+.field-error { color: #e74c3c; font-size: 0.8rem; margin-top: 0.2rem; display: block; }
+
+.category-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem; }
+.chip {
+  padding: 0.4rem 1rem; border-radius: 20px;
+  border: 2px solid #ddd; background: white;
+  cursor: pointer; font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.chip.active {
+  background: #f5a623; border-color: #f5a623;
+  color: #1a1a2e; font-weight: 600;
+}
+.chip:hover:not(.active) { border-color: #f5a623; color: #f5a623; }
+
+.submit-btn {
+  width: 100%; padding: 0.9rem;
+  background: #f5a623; color: #1a1a2e;
+  border: none; border-radius: 8px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: background 0.2s; margin-top: 0.5rem;
+}
+.submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+.submit-btn:not(:disabled):hover { background: #e6951e; }
+.btn-primary {
+  display: inline-block; background: #f5a623; color: #1a1a2e;
+  padding: 0.7rem 2rem; border-radius: 8px;
+  border: none; cursor: pointer; font-weight: 600; font-size: 1rem;
+}

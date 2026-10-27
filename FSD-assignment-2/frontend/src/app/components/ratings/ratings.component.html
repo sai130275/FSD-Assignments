@@ -1,0 +1,93 @@
+<div class="ratings-page">
+  <div class="page-header">
+    <h2>Ratings & Reviews</h2>
+    <p>Share your experience and see what others think</p>
+  </div>
+
+  <div class="ratings-layout">
+    <!-- Summary + existing ratings -->
+    <div class="ratings-left">
+      <div class="summary-card" *ngIf="!loading && totalCount > 0">
+        <div class="avg-number">{{ average }}</div>
+        <div class="stars-display">
+          <span *ngFor="let s of [1,2,3,4,5]"
+            [class.filled]="s <= average"
+            [class.half]="s > average && s <= average + 0.5">★</span>
+        </div>
+        <div class="count">Based on {{ totalCount }} review{{ totalCount !== 1 ? 's' : '' }}</div>
+      </div>
+
+      <div class="loading" *ngIf="loading">Loading reviews…</div>
+      <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+      <div class="reviews-list" *ngIf="!loading">
+        <div class="review-card" *ngFor="let r of ratings">
+          <div class="review-header">
+            <div class="reviewer-avatar">{{ r.customerName.charAt(0).toUpperCase() }}</div>
+            <div>
+              <div class="reviewer-name">{{ r.customerName }}</div>
+              <div class="review-meta">
+                <span class="cat-tag">{{ r.category }}</span>
+                <span class="review-date">{{ r.createdAt | date:'MMM d, y' }}</span>
+              </div>
+            </div>
+            <div class="star-rating ml-auto">
+              <span *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= r.stars">★</span>
+            </div>
+          </div>
+          <p class="review-text" *ngIf="r.review">{{ r.review }}</p>
+        </div>
+        <p class="no-reviews" *ngIf="ratings.length === 0">No reviews yet. Be the first!</p>
+      </div>
+    </div>
+
+    <!-- Submit rating form -->
+    <div class="ratings-right">
+      <div class="form-card">
+        <h3>Rate Your Experience</h3>
+
+        <div class="success-msg" *ngIf="submitSuccess">✅ Thank you for your rating!</div>
+        <div class="error-msg" *ngIf="submitError">{{ submitError }}</div>
+
+        <form #ratingForm="ngForm" (ngSubmit)="submitRating(ratingForm)">
+          <div class="form-group">
+            <label>Your Name *</label>
+            <input type="text" name="customerName" [(ngModel)]="customerName"
+              required maxlength="100" #nameCtrl="ngModel" placeholder="Your name" />
+            <span class="field-error" *ngIf="nameCtrl.invalid && nameCtrl.touched">Name is required.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category" [(ngModel)]="category">
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Rating *</label>
+            <div class="star-picker">
+              <span *ngFor="let s of [1,2,3,4,5]"
+                class="star-pick"
+                [class.selected]="s <= (hoverStar || stars)"
+                (mouseenter)="hoverStar = s"
+                (mouseleave)="hoverStar = 0"
+                (click)="stars = s">★</span>
+            </div>
+            <span class="star-label">{{ getStarLabel(hoverStar || stars) }}</span>
+          </div>
+
+          <div class="form-group">
+            <label>Review (optional)</label>
+            <textarea name="review" [(ngModel)]="review" maxlength="500" rows="4"
+              placeholder="Tell us about your experience…"></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="submitting">
+            {{ submitting ? 'Submitting…' : 'Submit Rating' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
