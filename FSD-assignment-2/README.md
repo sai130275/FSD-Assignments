@@ -197,4 +197,8 @@ lsof -ti:4200 | xargs kill -9
 ## 👤 Author
 
 **Prathapa Giri Sai Sathwik**  
-Full Stack Development — Assignment 2
+Full Stack Development — Assignment 
+
+START COMMANDS:
+cd FSD-assignment-2
+./startup.sh

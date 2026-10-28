@@ -1,0 +1,56 @@
+<div class="menu-page">
+  <div class="page-header">
+    <h2>Our Menu</h2>
+    <p>21 dishes across 6 categories, freshly prepared</p>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading menu…</div>
+  <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+  <div *ngIf="!loading && !error">
+    <!-- Category filter -->
+    <div class="category-tabs">
+      <button
+        *ngFor="let cat of categories"
+        [class.active]="selectedCategory === cat"
+        (click)="filterByCategory(cat)"
+        class="tab-btn">
+        {{ cat }}
+      </button>
+    </div>
+
+    <!-- Menu grid -->
+    <div class="menu-grid">
+      <div class="menu-card" *ngFor="let item of filteredItems">
+        <div class="img-wrap">
+          <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" (error)="$any($event.target).src='assets/food-placeholder.png'" />
+          <span class="category-badge">{{ item.category }}</span>
+          <span class="veg-badge" *ngIf="item.isVegetarian">🌿 Veg</span>
+          <span class="spicy-badge" *ngIf="item.isSpicy">🌶 Spicy</span>
+        </div>
+        <div class="card-body">
+          <h3>{{ item.name }}</h3>
+          <p class="desc">{{ item.description }}</p>
+          <div class="meta">
+            <span class="prep">⏱ {{ item.preparationTime }} min</span>
+          </div>
+          <div class="card-footer">
+            <span class="price">₹{{ item.price }}</span>
+            <div class="qty-controls" *ngIf="getQuantityInCart(item._id) > 0; else addBtn">
+              <button (click)="cartService.updateQuantity(item._id, getQuantityInCart(item._id) - 1)">−</button>
+              <span>{{ getQuantityInCart(item._id) }}</span>
+              <button (click)="cartService.updateQuantity(item._id, getQuantityInCart(item._id) + 1)">+</button>
+            </div>
+            <ng-template #addBtn>
+              <button class="add-btn" [class.added]="addedIds.has(item._id)" (click)="addToCart(item)">
+                {{ addedIds.has(item._id) ? '✓ Added' : '+ Add' }}
+              </button>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="empty" *ngIf="filteredItems.length === 0">No items in this category.</p>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+.navbar {
+  background: linear-gradient(90deg, var(--color-dark) 0%, #5C2A0A 100%);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(61,28,2,0.45);
+  height: 64px;
+  border-bottom: 3px solid var(--color-accent);
+}
+.brand {
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+.brand:hover { color: var(--color-sand); }
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+}
+.nav-links a {
+  color: var(--color-sand);
+  text-decoration: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, color 0.2s;
+  font-size: 0.92rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+.cart-link { position: relative; }
+.badge {
+  background: var(--color-accent);
+  color: var(--color-dark);
+  border-radius: 50%;
+  padding: 1px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+}

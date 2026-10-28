@@ -5,7 +5,7 @@
 #  Usage: chmod +x startup.sh && ./startup.sh
 # =============================================================
 
-set -e
+set -o pipefail
 
 # ─── Colour helpers ───────────────────────────────────────────
 RED='\033[0;31m'
@@ -60,36 +60,32 @@ success "Angular CLI ${NG_VER}"
 # ─── Step 2: Start MongoDB ─────────────────────────────────────
 info "Checking MongoDB..."
 
-if command -v brew >/dev/null 2>&1 && brew services list 2>/dev/null | grep -q "mongodb-community"; then
-    if brew services list | grep "mongodb-community" | grep -q "started"; then
-        success "MongoDB is already running (brew service)"
-    else
-        info "Starting MongoDB via Homebrew..."
-        brew services start mongodb-community
-        sleep 2
-        success "MongoDB started"
-    fi
-elif command -v systemctl >/dev/null 2>&1; then
-    if systemctl is-active --quiet mongod 2>/dev/null; then
-        success "MongoDB is already running (systemd)"
-    else
-        info "Starting MongoDB via systemctl..."
-        sudo systemctl start mongod
-        sleep 2
-        success "MongoDB started"
-    fi
+# Check if MongoDB is already responding
+if mongosh --eval "db.adminCommand({ ping: 1 })" --quiet >/dev/null 2>&1; then
+    success "MongoDB is already running"
+elif command -v brew >/dev/null 2>&1 && brew services list 2>/dev/null | grep -q "mongodb-community"; then
+    info "Starting MongoDB via Homebrew..."
+    brew services start mongodb-community
+    sleep 3
+    success "MongoDB started (brew service)"
+elif command -v systemctl >/dev/null 2>&1 && systemctl list-units --type=service 2>/dev/null | grep -q mongod; then
+    info "Starting MongoDB via systemctl..."
+    sudo systemctl start mongod
+    sleep 2
+    success "MongoDB started (systemd)"
 elif command -v mongod >/dev/null 2>&1; then
-    if mongosh --eval "db.adminCommand({ ping: 1 })" --quiet >/dev/null 2>&1; then
-        success "MongoDB is already running"
+    warn "Starting mongod in background (macOS compatible)..."
+    mkdir -p /tmp/mongodb-data
+    mongod --dbpath /tmp/mongodb-data --logpath /tmp/mongod.log &
+    MONGOD_PID=$!
+    sleep 3
+    if kill -0 "$MONGOD_PID" 2>/dev/null; then
+        success "MongoDB started (PID: $MONGOD_PID, data: /tmp/mongodb-data)"
     else
-        warn "Attempting to start mongod in background..."
-        mkdir -p /tmp/mongodb-data
-        mongod --dbpath /tmp/mongodb-data --fork --logpath /tmp/mongod.log
-        sleep 2
-        success "MongoDB started (data: /tmp/mongodb-data)"
+        error "MongoDB failed to start. Check /tmp/mongod.log"
     fi
 else
-    warn "mongod not found. Make sure MongoDB is running manually on port 27017."
+    warn "mongod not found. Make sure MongoDB is running on port 27017 before continuing."
 fi
 
 # ─── Step 3: Backend setup ────────────────────────────────────
@@ -141,6 +137,13 @@ sleep 3
 if kill -0 "$BACKEND_PID" 2>/dev/null; then
     success "Backend running  →  http://localhost:3000  (PID: $BACKEND_PID)"
     success "Health check     →  http://localhost:3000/api/health"
+
+    # Check if database has menu items; if not, seed automatically
+    if curl -s http://localhost:3000/api/menu | grep -q '"data":\[\]'; then
+        info "Database is empty. Seeding initial menu items..."
+        (cd "$BACKEND_DIR" && npm run seed)
+        success "Database seeded with menu items"
+    fi
 else
     error "Backend failed to start. Check /tmp/restaurant-backend.log"
 fi
